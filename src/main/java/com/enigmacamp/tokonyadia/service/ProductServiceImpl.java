@@ -1,14 +1,17 @@
 package com.enigmacamp.tokonyadia.service;
 
 import com.enigmacamp.tokonyadia.dto.request.ProductRequest;
+import com.enigmacamp.tokonyadia.dto.request.ProductSearch;
 import com.enigmacamp.tokonyadia.dto.response.ProductResponse;
 import com.enigmacamp.tokonyadia.entity.Product;
 import com.enigmacamp.tokonyadia.repository.ProductRepository;
+import com.enigmacamp.tokonyadia.specification.ProductSpecification;
 import com.enigmacamp.tokonyadia.utils.constant.ResponseMessage;
 import com.enigmacamp.tokonyadia.utils.exceptions.DataNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,8 +38,9 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Page<ProductResponse> getAllProduct(Pageable pageable) {
-        return productRepository.findAll(pageable).map(Product::toResponse);
+    public Page<ProductResponse> getAllProduct(Pageable pageable, ProductSearch productSearch) {
+        Specification<Product> specification = ProductSpecification.getSpecification(productSearch);
+        return productRepository.findAll(specification,pageable).map(Product::toResponse);
     }
 
     @Override
