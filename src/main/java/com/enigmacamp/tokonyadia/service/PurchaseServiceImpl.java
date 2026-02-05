@@ -1,84 +1,58 @@
 package com.enigmacamp.tokonyadia.service;
+
+
 import com.enigmacamp.tokonyadia.entity.Product;
 import com.enigmacamp.tokonyadia.entity.Purchase;
 import com.enigmacamp.tokonyadia.entity.PurchaseDetail;
+import com.enigmacamp.tokonyadia.repository.PurchaseDetailRepository;
 import com.enigmacamp.tokonyadia.repository.PurchaseRepository;
-import jakarta.transaction.Transaction;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 @Service
-public class PurchaseServiceImpl implements PurchaseService {
-	
-	PurchaseRepository purchaseRepository;
-	PurchaseDetailService purchaseDetailService;
-	ProductService productService;
-	
-	@Autowired
-	public PurchaseServiceImpl(PurchaseRepository purchaseRepository, PurchaseDetailService purchaseDetailService, ProductService productService) {
-		this.purchaseRepository = purchaseRepository;
-		this.purchaseDetailService = purchaseDetailService;
-		this.productService = productService;
-	}
-	
-	@Override
-	@Transactional
-	public Purchase transaction(Purchase purchase) {
-		purchase.setTransactionDate(LocalDate.now());
-		
-		Purchase savedPurchase = purchaseRepository.save(purchase);
-		List<PurchaseDetail> purchaseDetails = purchase.getPurchaseDetails();
-		purchaseDetails.forEach(pd -> {
-			Product product = productService.getProductById(pd.getProduct().getId());
-			
-			pd.setPriceSell(product.getProductPrice() * pd.getQuantity());
-//			pd.s
-			
-			pd.setPurchase(savedPurchase);
-			
-			purchaseDetailService.savePurchaseDetail(pd);
-		});
-		
-		return savedPurchase;
-	}
+public class PurchaseServiceImpl implements PurchaseService{
 
-//	@Override
-//	public ResponseEntity<List<Purchase>> getAll(){
-//		List<Purchase> purchases = purchaseRepository.findAll();
-//		purchases.stream()
-//				.(purchases :: toResponse)
-//				.map()
-//	}
-	
-	public List<PurchaseDetail> getDetailsTransaction(UUID id) {
-		Purchase purchase = purchaseRepository.findById(id).orElse(null);
-		if (purchase == null) return List.of();
-		
-		for (PurchaseDetail pd : purchase.getPurchaseDetails()) {
-			double total = pd.getProduct().getProductPrice() * pd.getQuantity();
-			pd.setPriceSell(total);
-		}
-		
-		return purchase.getPurchaseDetails();
-	}
+    PurchaseRepository purchaseRepository;
 
-//	@Override
-//	public ResponseEntity<List<Purchase>> getAll(){
-//	return purchaseRepository.findAll().stream()
-//			.map(purch
-//	}
-	
-	@Override
-	public List<Purchase> getDetailTransaction() {
-		return purchaseRepository.findAll();
-//	}
-	}
+    PurchaseDetailService purchaseDetailService;
+
+    ProductService productService;
+
+    @Autowired
+    public PurchaseServiceImpl(PurchaseRepository purchaseRepository, PurchaseDetailService purchaseDetailService, ProductService productService) {
+        this.purchaseRepository = purchaseRepository;
+        this.purchaseDetailService = purchaseDetailService;
+        this.productService = productService;
+    }
+
+    @Override
+    @Transactional
+    public Purchase transaction(Purchase purchase) {
+        Purchase purchase1 = purchaseRepository.save(purchase);
+        purchase1.setTransactionDate(LocalDate.now());
+
+        List<PurchaseDetail> purchaseDetails = purchase.getPurchaseDetails();
+
+        purchaseDetails.forEach( p -> {
+            p.setPurchase(purchase1);
+            Product product = productService.getProductById(p.getProduct().getId());
+            if (product.getStock() < p.getQuantity()) {
+                throw new IllegalStateException(
+                        "Stok produk " + product.getProductName() +
+                                " tidak mencukupi. Stok: " + product.getStock() +
+                                ", Dibeli: " + p.getQuantity()
+                );
+            }
+            product.setStock(product.getStock() - p.getQuantity());
+            p.setPriceSell(product.getProductPrice());
+
+            purchaseDetailService.savePurchaseDetail(p);
+        });
+
+        return purchase1;
+    }
 }
-
-

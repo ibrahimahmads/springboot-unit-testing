@@ -1,6 +1,5 @@
 package com.enigmacamp.tokonyadia.dto.request;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,10 +9,19 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class ProductSearch {
-	private String productName;
-	private Double minPrice;
-	private Double maxPrice;
-	private Integer stock;
+    private String productName;
+    private Double minPrice;
+    private Double maxPrice;
+    private Integer stock;
+
+    @Override
+    public String toString() {
+        return "ProductSearch{" +
+                "productName='" + productName + '\'' +
+                ", minPrice=" + minPrice +
+                ", maxPrice=" + maxPrice +
+                ", stock=" + stock +
+                '}';
+    }
 }

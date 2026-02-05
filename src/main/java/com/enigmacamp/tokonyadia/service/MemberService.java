@@ -7,4 +7,5 @@ import java.util.UUID;
 public interface MemberService {
     Member saveMember(Member member);
     Member getMemberById(UUID id);
+    Boolean findMemberByUsername(String username);
 }

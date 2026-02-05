@@ -40,7 +40,8 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public Page<ProductResponse> getAllProduct(Pageable pageable, ProductSearch productSearch) {
         Specification<Product> specification = ProductSpecification.getSpecification(productSearch);
-        return productRepository.findAll(specification,pageable).map(Product::toResponse);
+        System.out.println("Spesification Result: " + specification);
+        return productRepository.findAll(specification, pageable).map(Product::toResponse);
     }
 
     @Override
@@ -59,6 +60,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public Product updateProduct(ProductRequest payload, UUID id) {
+//        Product product1 = getProductById(id);
         Product product = Product.builder()
                 .productName(payload.name())
                 .productPrice(payload.price())

@@ -26,4 +26,9 @@ public class MemberServiceImpl implements MemberService{
     public Member getMemberById(UUID id) {
         return memberRepository.findById(id).get();
     }
+
+    @Override
+    public Boolean findMemberByUsername(String username) {
+       return memberRepository.findByUsername(username).isPresent();
+    }
 }

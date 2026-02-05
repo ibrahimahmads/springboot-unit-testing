@@ -17,22 +17,22 @@ import java.util.UUID;
 @Getter
 @Setter
 public class PurchaseDetail {
-	
-	@Id
-	@GeneratedValue
-	@UuidGenerator
-	private UUID id;
-	
-	private Integer quantity;
-	private Double priceSell;
-	
-	@ManyToOne
-	@JoinColumn(name = "product_id")
-	private Product product;
 
-	@ManyToOne
-	@JoinColumn(name = "purchase_id")
-	@JsonIgnoreProperties("purchaseDetails")
-	private Purchase purchase;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    private UUID id;
+
+    private Integer quantity;
+    private Double priceSell;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private  Product product;
+
+    @ManyToOne
+    @JoinColumn(name = "purchase_id")
+    @JsonIgnoreProperties("purchaseDetails")
+    private Purchase purchase;
 
 }
